@@ -6,8 +6,7 @@ library(tidyverse)
 library(stringr)
 library(lubridate)
 
-tweets <- read.csv("C:/Users/Student/OneDrive - University of Virginia/Documents/Data Science/DS-4002/Project 1/tweets.csv")
-tweets <- tweets[1:(length(tweets)-2)]
+tweets <- read.csv("C:/Users/Student/OneDrive - University of Virginia/Documents/Data Science/DS-4002/rlq3fm-DS-4002/Project 1/tweets_original.csv")
 
 # Data cleaning
 
@@ -59,15 +58,10 @@ class(tweets$day)
 
 tweets <- tweets %>%
   mutate(election_period = as.factor(case_when(day < "2015-06-16" ~ "Pre",
-                                     (day >=  "2015-06-16" & day < "2016-11-08") ~ "During",
-                                     day >= "2016-11-08" ~ "Post")))
+                                     (day >=  "2015-06-16" & day <= "2016-11-08") ~ "During",
+                                     day > "2016-11-08" ~ "Post")))
 
 
 # drop unnecessary columns
-drop <- c("id","isRetweet","device","isFlagged")
+drop <- c("id","isRetweet","device","isFlagged","time")
 tweets <- tweets[,!(names(tweets) %in% drop)]
-
-ggplot(tweets, aes(x=election_period)) + geom_bar() + geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white")
-
-pie(table(tweets$contains_word),labels = c("34598 FALSE","10843 TRUE"))
-table(tweets$contains_word)
