@@ -45,7 +45,7 @@ tweets <- tweets %>%
          media = if_else(str_detect(text, "media"),1,0),
          democrat = if_else(str_detect(text, "democrat"),1,0),
          great = if_else(str_detect(text, "great"),1,0),
-         proud_boys = if_else(str_detect(text, "proud boys"),1,0))
+         trump = if_else(str_detect(text, "trump"),1,0))
 
 # split into separate day and time columns
 tweets <- separate(data=tweets, col=date, c("day", "time"), sep = " ")
@@ -61,7 +61,6 @@ tweets <- tweets %>%
                                      (day >=  "2015-06-16" & day <= "2016-11-08") ~ "During",
                                      day > "2016-11-08" ~ "Post")))
 
-
 # drop unnecessary columns
-drop <- c("id","isRetweet","device","isFlagged","time")
+drop <- c("id","isRetweet","device","isFlagged","time","X","X.1")
 tweets <- tweets[,!(names(tweets) %in% drop)]

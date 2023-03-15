@@ -1,0 +1,88 @@
+---
+title: "Decision Tree"
+author: "Reese Quillian"
+date: "2023-02-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Building Decision Tree Model
+
+```{r}
+# load data and libraries
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+
+tweets <- read.csv(paste(getwd(), "/tweets_new.csv",sep=""))
+```
+
+```{r}
+# make variables factors
+names(tweets)
+word_cols <- c("wall","fake_news","media","democrat","great","trump",
+               "contains_word","election_period")
+
+tweets[,word_cols] <- sapply(tweets[,word_cols], as.factor)
+
+## getting complete cases only
+tweets_complete <- tweets[complete.cases(tweets),]
+nrow(tweets_complete)
+```
+
+
+splitting data into testing and training:
+
+```{r}
+# cleaning was done in earlier step (see establish-data.R)
+# drop features not included in model
+drop <- c("isDeleted","favorites","retweets","day","contains_word","text")
+
+tweets_complete <- tweets_complete[,!(names(tweets_complete) %in% drop)]
+
+# shuffle data
+shuffle_index <- sample(1:nrow(tweets_complete))
+head(shuffle_index)
+
+tweets_shuffle <- tweets_complete[shuffle_index,]
+```
+
+```{r}
+# creating a function 
+
+create_train_test <- function(data, size = 0.7, train = TRUE) {
+    n_row = nrow(data)
+    total_row = size * n_row
+    train_sample <- 1:total_row
+    if (train == TRUE) {
+        return (data[train_sample, ])
+    } else {
+        return (data[-train_sample, ])
+    }
+}
+```
+
+
+```{r}
+tweets_train <- create_train_test(tweets_shuffle, 0.7, train = TRUE)
+tweets_test <- create_train_test(tweets_shuffle, 0.7, train = FALSE)
+dim(tweets_train)
+```
+
+
+```{r}
+# looking at proportions of election period
+prop.table(table(tweets_train$election_period))
+prop.table(table(tweets_test$election_period))
+```
+
+Building the model:
+
+```{r}
+fit <- rpart(election_period~wall+fake_news+media+democrat+great+trump, data = tweets_train, method = 'class',cp=.005)
+rpart.plot(fit)
+```
+

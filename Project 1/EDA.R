@@ -25,3 +25,34 @@ cols = c("wall","fake_news","media","democrat","great","proud_boys")
 df <- tweets %>% summarize(sum(wall),sum(fake_news),sum(media),sum(democrat),sum(great),sum(proud_boys))
 
 
+my_theme <- theme_bw() + 
+  theme(axis.text = element_text(size = 12), 
+        axis.title = element_text(size = 14), 
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        plot.title = element_text(size=14))
+
+# order levels to change order of plots to Pre -> During -> Post
+tweets$election_period <- factor(tweets$election_period, 
+                                          levels = c("Pre", "During", "Post"))
+
+tweets <- tweets %>% mutate(trump = if_else(str_detect(text, "trump"),1,0))
+tweets$contains_word <- as.factor(tweets$contains_word)
+
+plot2 <- ggplot(tweets) +
+  geom_bar(aes(x = contains_word, fill = election_period), position = "fill", color = "black") +
+  scale_fill_manual("Election Period", values = c("Pre" = "lightblue", "During" = "navyblue",
+                                                  "Post" = "blue")) +
+  labs(x = "words present in Tweet", y = "Proportion of Tweets") +
+  my_theme
+plot2
+
+plot3 <- ggplot(tweets) +
+  geom_bar(aes(x = as.factor(trump), fill = election_period), position = "fill", color = "black") +
+  scale_fill_manual("Election Period", values = c("Pre" = "lightblue", "During" = "navyblue",
+                                                  "Post" = "blue")) +
+  labs(x = "'Trump' present in Tweet", y = "Proportion of Tweets") +
+  my_theme
+plot3
+
+
